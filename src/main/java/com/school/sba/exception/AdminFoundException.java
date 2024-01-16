@@ -1,9 +1,9 @@
 package com.school.sba.exception;
 
-public class SchoolNotFoundByIdException extends RuntimeException {
+public class AdminFoundException extends RuntimeException{
 	private String message;
 
-	public SchoolNotFoundByIdException(String message) {
+	public AdminFoundException(String message) {
 		this.message = message;
 	}
 	@Override

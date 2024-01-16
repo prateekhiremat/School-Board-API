@@ -22,6 +22,7 @@ public class Scheduleld {
 	private LocalTime opensAt;
 	private LocalTime closesAt;
 	private int classHoursPerDay;
+	private LocalTime classHourLength;
 	private LocalTime breakTime;
 	private LocalTime breakLength;
 	private LocalTime lunchTime;

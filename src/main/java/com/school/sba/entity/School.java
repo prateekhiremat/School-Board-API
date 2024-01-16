@@ -23,6 +23,4 @@ public class School {
 	private int schoolContactNo;
 	private String schoolEmailId;
 	private String schoolAddress;
-	@OneToOne
-	private Scheduleld scheduleld;
 }

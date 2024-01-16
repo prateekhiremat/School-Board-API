@@ -25,7 +25,6 @@ public class SchoolController{
 
 	@PostMapping
 	public ResponseEntity<ResponseStructure<School>> addSchool(@RequestBody School school) {
-		System.out.println("Entered Controller Layer");
 		return service.addSchool(school);
 	}
 	@GetMapping("/{schoolId}")
