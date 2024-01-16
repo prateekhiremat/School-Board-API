@@ -12,13 +12,15 @@ import com.school.sba.responseDTO.UserResponce;
 import com.school.sba.service.UserService;
 import com.school.sba.util.ResponseStructure;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
 	@Autowired
 	private UserService userService;
 	@PostMapping("/register")
-	public ResponseEntity<ResponseStructure<UserResponce>> saveUser(@RequestBody UserRequest userRequest){
+	public ResponseEntity<ResponseStructure<UserResponce>> saveUser(@RequestBody @Valid UserRequest userRequest){
 		return userService.saveUser(userRequest);
 	}
 }
