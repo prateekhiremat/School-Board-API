@@ -10,4 +10,8 @@ public interface UserService {
 
 	ResponseEntity<ResponseStructure<UserResponce>> saveUser(UserRequest userRequest);
 
+	ResponseEntity<ResponseStructure<UserResponce>> fetchById(int userId);
+
+	ResponseEntity<ResponseStructure<UserResponce>> deleteById(int userId);
+
 }

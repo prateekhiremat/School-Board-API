@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 import com.school.sba.Enum.UserRole;
 import com.school.sba.entity.User;
 import com.school.sba.exception.AdminFoundException;
+import com.school.sba.exception.UserNotFoundByIdException;
 import com.school.sba.repository.UserRepository;
+import com.school.sba.requestDTO.SchoolRequest;
 import com.school.sba.requestDTO.UserRequest;
+import com.school.sba.responseDTO.SchoolResponce;
 import com.school.sba.responseDTO.UserResponce;
 import com.school.sba.service.UserService;
 import com.school.sba.util.ResponseStructure;
@@ -23,9 +26,8 @@ public class UserServiceImp implements UserService {
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponce>> saveUser(UserRequest userRequest) {
 		List<User> findAll = userRepository.findAll();
-		//		findAll.forEach(t -> t.getUserRole().compareTo(UserRole.ADMIN));
-		for(User u : findAll) {
-			if(u.getUserRole().toString()=="ADMIN")
+		for(User user : findAll) {
+			if(user.getUserRole().toString()=="ADMIN")
 				if(userRequest.getUserRole().toString()=="ADMIN")
 					throw new AdminFoundException("Admin already exist");
 		}
@@ -35,6 +37,34 @@ public class UserServiceImp implements UserService {
 		responseStructure.setMessage("Saved Successfully!!!");
 		responseStructure.setData(mapToResponse(user));
 		return new ResponseEntity<ResponseStructure<UserResponce>>(responseStructure, HttpStatus.CREATED);
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponce>> fetchById(int userId) {
+		User user = userRepository.findById(userId).orElseThrow(()-> new UserNotFoundByIdException("UserId does not exist!!!"));
+		if(user.isDeleated()==true) {
+			throw new UserNotFoundByIdException("UserId has already been deleated!!!");
+		}else{
+			ResponseStructure<UserResponce> responseStructure = new ResponseStructure<UserResponce>();
+			responseStructure.setStatus(HttpStatus.FOUND.value());
+			responseStructure.setMessage("User Id found successfully!!!");
+			responseStructure.setData(mapToResponse(user));
+			return new ResponseEntity<ResponseStructure<UserResponce>>(responseStructure, HttpStatus.FOUND);
+		}
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponce>> deleteById(int userId) {
+		User user = userRepository.findById(userId).orElseThrow(()-> new UserNotFoundByIdException("UserId does not exist!!!"));
+		if(user.isDeleated()==true) {
+			throw new UserNotFoundByIdException("UserId has already been deleated!!!");
+		}else{
+			user.setDeleated(true);
+			userRepository.save(user);
+			ResponseStructure<UserResponce> responseStructure = new ResponseStructure<UserResponce>();
+			responseStructure.setStatus(HttpStatus.OK.value());
+			responseStructure.setMessage("User Id deleted successfully!!!");
+			responseStructure.setData(mapToResponse(user));
+			return new ResponseEntity<ResponseStructure<UserResponce>>(responseStructure, HttpStatus.FOUND);
+		}
 	}
 	private UserResponce mapToResponse(User user) {
 		return UserResponce.builder().userId(user.getUserId())

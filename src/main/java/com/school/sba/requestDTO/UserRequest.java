@@ -29,5 +29,4 @@ public class UserRequest {
 	@Email(regexp = "[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-z]{2,}", message = "invalid email ")
 	private String userEmail;
 	private  UserRole userRole;
-	//	private School school;
 }

@@ -3,9 +3,8 @@ package com.school.sba.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.school.sba.entity.School;
-
+import com.school.sba.entity.Scheduleld;
 @Repository
-public interface SchoolRepository extends JpaRepository<School, Integer> {
-	
+public interface ScheduleldRepository extends JpaRepository<Scheduleld, Integer> {
+
 }
