@@ -1,9 +1,9 @@
 package com.school.sba.responseDTO;
 
 import java.time.LocalTime;
+import java.util.List;
 
 import com.school.sba.Enum.ProgramType;
-import com.school.sba.entity.School;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -18,4 +18,5 @@ public class AcademicProgramResponse {
 	private ProgramType programType;
 	private LocalTime beginsAt;
 	private LocalTime endsAt;
+	private List<String> user;
 }

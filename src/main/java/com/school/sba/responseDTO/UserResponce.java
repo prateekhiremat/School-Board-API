@@ -1,6 +1,7 @@
 package com.school.sba.responseDTO;
 
 import com.school.sba.Enum.UserRole;
+import com.school.sba.entity.Subject;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +21,6 @@ public class UserResponce {
 	private String lastName;
 	private long userContactNo;
 	private String userEmail;
-	private  UserRole userRole;
-//	private School school;
+	private UserRole userRole;
+	private String subject;
 }

@@ -38,4 +38,6 @@ public class AcademicProgram {
 	private School school;
 	@ManyToMany
 	private List<Subject> subjects;
+	@ManyToMany
+	private List<User> user;
 }

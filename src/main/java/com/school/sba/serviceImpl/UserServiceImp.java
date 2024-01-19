@@ -1,6 +1,7 @@
 package com.school.sba.serviceImpl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,7 +11,9 @@ import org.springframework.stereotype.Service;
 import com.school.sba.Enum.UserRole;
 import com.school.sba.entity.User;
 import com.school.sba.exception.AdminFoundException;
+import com.school.sba.exception.IllegalArgumentException;
 import com.school.sba.exception.UserNotFoundByIdException;
+import com.school.sba.repository.SubjectRepository;
 import com.school.sba.repository.UserRepository;
 import com.school.sba.requestDTO.SchoolRequest;
 import com.school.sba.requestDTO.UserRequest;
@@ -23,6 +26,8 @@ import com.school.sba.util.ResponseStructure;
 public class UserServiceImp implements UserService {
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private SubjectRepository subjectRepository;
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponce>> saveUser(UserRequest userRequest) {
 		List<User> findAll = userRepository.findAll();
@@ -63,8 +68,32 @@ public class UserServiceImp implements UserService {
 			responseStructure.setStatus(HttpStatus.OK.value());
 			responseStructure.setMessage("User Id deleted successfully!!!");
 			responseStructure.setData(mapToResponse(user));
-			return new ResponseEntity<ResponseStructure<UserResponce>>(responseStructure, HttpStatus.FOUND);
+			return new ResponseEntity<ResponseStructure<UserResponce>>(responseStructure, HttpStatus.OK);
 		}
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponce>> addSubjectToTheTeacher(int subjectId, int userId) {
+		return subjectRepository.findById(subjectId).map(subject->{
+			User user = userRepository.findById(userId).get();
+			if(user.isDeleated()==true)
+				throw new UserNotFoundByIdException("UserId has already been deleated!!!");
+			if(user.getUserRole().equals(UserRole.TEACHER)) {
+				if(user.getSubject()==null) {
+					user.setSubject(subject);
+					userRepository.save(user);
+					subject.getUser().add(user);
+					ResponseStructure<UserResponce> responseStructure = new ResponseStructure<UserResponce>();
+					responseStructure.setStatus(HttpStatus.OK.value());
+					responseStructure.setMessage("User Id deleted successfully!!!");
+					responseStructure.setData(mapToResponse(user));
+					return new ResponseEntity<ResponseStructure<UserResponce>>(responseStructure, HttpStatus.OK);
+				}else {
+					throw new IllegalArgumentException("Subject is already assigned to Teacher");
+				}
+			}else {
+				throw new IllegalArgumentException("Subject is added Only to Teacher");
+			}
+		}).orElseThrow(()->new IllegalArgumentException("Subject Does Not Exist!!!"));
 	}
 	private UserResponce mapToResponse(User user) {
 		return UserResponce.builder().userId(user.getUserId())
@@ -74,6 +103,7 @@ public class UserServiceImp implements UserService {
 				.userRole(user.getUserRole())
 				.firstName(user.getFirstName())
 				.lastName(user.getLastName())
+				.subject(user.getSubject().getSubjectName())
 				.build();
 	}
 	private User mapToUser(UserRequest userRequest) {
@@ -86,5 +116,4 @@ public class UserServiceImp implements UserService {
 				.userRole(userRequest.getUserRole())
 				.build();
 	}
-
 }

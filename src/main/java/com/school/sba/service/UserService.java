@@ -14,4 +14,6 @@ public interface UserService {
 
 	ResponseEntity<ResponseStructure<UserResponce>> deleteById(int userId);
 
+	ResponseEntity<ResponseStructure<UserResponce>> addSubjectToTheTeacher(int subjectId, int userId);
+
 }

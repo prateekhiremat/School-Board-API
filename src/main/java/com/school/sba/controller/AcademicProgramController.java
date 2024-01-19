@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,5 +27,9 @@ public class AcademicProgramController {
 	@GetMapping("/schools/{schoolId}/academicPrograms")
 	public ResponseEntity<ResponseStructure<List<AcademicProgramResponse>>> fetchAllAcademicProgram(@PathVariable int schoolId){
 		return academicProgramService.fetchAllAcademicProgram(schoolId);
+	}
+	@PutMapping("/academicPrograms/{programId}/users/{userId}")
+	public ResponseEntity<ResponseStructure<AcademicProgramResponse>> assignTeachersStudentsToAcademicProgram(@PathVariable int programId, @PathVariable int userId){
+		return academicProgramService.assignTeachersStudentsToAcademicProgram(programId, userId);
 	}
 }
