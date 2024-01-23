@@ -19,23 +19,22 @@ import com.school.sba.util.ResponseStructure;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/users")
 public class UserController {
 	@Autowired
 	private UserService userService;
-	@PostMapping("/register")
+	@PostMapping("/users/register")
 	public ResponseEntity<ResponseStructure<UserResponce>> saveUser(@RequestBody @Valid UserRequest userRequest){
 		return userService.saveUser(userRequest);
 	}
-	@GetMapping("/{userId}")
+	@GetMapping("/users/{userId}")
 	public ResponseEntity<ResponseStructure<UserResponce>> fetchById (@PathVariable int userId){
 		return userService.fetchById(userId);
 	}
-	@DeleteMapping("/{userId}")
+	@DeleteMapping("/users/{userId}")
 	public ResponseEntity<ResponseStructure<UserResponce>> deleteById(@PathVariable int userId){
 		return userService.deleteById(userId);
 	}
-	@PutMapping("/subjects/{subjectId}/users/{userId}")
+	@PutMapping("/users/subjects/{subjectId}/users/{userId}")
 	public ResponseEntity<ResponseStructure<UserResponce>> addSubjectToTheTeacher(@PathVariable int subjectId, @PathVariable int userId){
 		return userService.addSubjectToTheTeacher(subjectId, userId);
 	}

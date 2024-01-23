@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.school.sba.Enum.UserRole;
@@ -28,12 +29,14 @@ public class UserServiceImp implements UserService {
 	private UserRepository userRepository;
 	@Autowired
 	private SubjectRepository subjectRepository;
+	@Autowired
+	PasswordEncoder encoded;
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponce>> saveUser(UserRequest userRequest) {
 		List<User> findAll = userRepository.findAll();
 		for(User user : findAll) {
-			if(user.getUserRole().toString()=="ADMIN")
-				if(userRequest.getUserRole().toString()=="ADMIN")
+			if(user.getUserRole().equals(UserRole.ADMIN))
+				if(userRequest.getUserRole().equals(UserRole.ADMIN))
 					throw new AdminFoundException("Admin already exist");
 		}
 		User user = userRepository.save(mapToUser(userRequest));
@@ -103,14 +106,14 @@ public class UserServiceImp implements UserService {
 				.userRole(user.getUserRole())
 				.firstName(user.getFirstName())
 				.lastName(user.getLastName())
-				.subject(user.getSubject().getSubjectName())
+//				.subject(user.getSubject().getSubjectName())
 				.build();
 	}
 	private User mapToUser(UserRequest userRequest) {
 		return User.builder().userName(userRequest.getUserName())
 				.userContactNo(userRequest.getUserContactNo())
 				.userEmail(userRequest.getUserEmail())
-				.password(userRequest.getPassword())
+				.password(encoded.encode(userRequest.getPassword()))
 				.firstName(userRequest.getFirstName())
 				.lastName(userRequest.getLastName())
 				.userRole(userRequest.getUserRole())
