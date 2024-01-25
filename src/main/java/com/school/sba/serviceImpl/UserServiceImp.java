@@ -66,7 +66,7 @@ public class UserServiceImp implements UserService {
 			responseStructure.setData(mapToResponse(user));
 			return new ResponseEntity<ResponseStructure<UserResponce>>(responseStructure, HttpStatus.CREATED);
 		}
-		
+
 	}
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponce>> fetchById(int userId) {
@@ -110,7 +110,7 @@ public class UserServiceImp implements UserService {
 					ResponseStructure<UserResponce> responseStructure = new ResponseStructure<UserResponce>();
 					responseStructure.setStatus(HttpStatus.OK.value());
 					responseStructure.setMessage("User Id deleted successfully!!!");
-					responseStructure.setData(mapToResponse(user));
+					responseStructure.setData(mapToResponseTeacher(user));
 					return new ResponseEntity<ResponseStructure<UserResponce>>(responseStructure, HttpStatus.OK);
 				}else {
 					throw new IllegalArgumentException("Subject is already assigned to Teacher");
@@ -128,7 +128,17 @@ public class UserServiceImp implements UserService {
 				.userRole(user.getUserRole())
 				.firstName(user.getFirstName())
 				.lastName(user.getLastName())
-				//				.subject(user.getSubject().getSubjectName())
+				.build();
+	}
+	private UserResponce mapToResponseTeacher(User user) {
+		return UserResponce.builder().userId(user.getUserId())
+				.userName(user.getUserName())
+				.userEmail(user.getUserEmail())
+				.userContactNo(user.getUserContactNo())
+				.userRole(user.getUserRole())
+				.firstName(user.getFirstName())
+				.lastName(user.getLastName())
+				.subject(user.getSubject().getSubjectName())
 				.build();
 	}
 	private User mapToUser(UserRequest userRequest) {

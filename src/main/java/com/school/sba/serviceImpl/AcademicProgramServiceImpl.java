@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.school.sba.Enum.UserRole;
 import com.school.sba.entity.AcademicProgram;
 import com.school.sba.entity.School;
+import com.school.sba.entity.Subject;
 import com.school.sba.entity.User;
 import com.school.sba.exception.IllegalArgumentException;
 import com.school.sba.exception.UserNotFoundByIdException;
@@ -61,16 +62,19 @@ public class AcademicProgramServiceImpl implements AcademicProgramService {
 	@Override
 	public ResponseEntity<ResponseStructure<AcademicProgramResponse>> assignTeachersStudentsToAcademicProgram(
 			int programId, int userId) {
+		AcademicProgram academicProgram = academicProgramRepository.findById(programId).get();
+		List<Subject> subjects = academicProgram.getSubjects();
 		return userRepository.findById(userId).map(user->{
-			if(user.isDeleated()==true)
-				throw new UserNotFoundByIdException("UserId has already been deleated!!!");
-			if(user.getUserRole().equals(UserRole.ADMIN)) {
-				throw new IllegalArgumentException("Admin cannot be added to AcademicProgram");
-			}else {
-				AcademicProgram academicProgram = academicProgramRepository.findById(programId).get();
-				user.getAcademicProgram().add(academicProgram);
+			if(user.isDeleated()==true)throw new UserNotFoundByIdException("UserId has already been deleated!!!");
+			
+			if(user.getUserRole().equals(UserRole.ADMIN))throw new IllegalArgumentException("Admin cannot be added to AcademicProgram");
+			else if(user.getUserRole().equals(UserRole.TEACHER) && !subjects.contains(user.getSubject())) {
+					throw new IllegalArgumentException("Teacher's subject Does not match");
+			}
+			else {
+//				user.getAcademicProgram().add(academicProgram);
 				academicProgram.getUser().add(user);
-				userRepository.save(user);
+//				userRepository.save(user);
 				academicProgramRepository.save(academicProgram);
 				List<String> lists = new ArrayList<String>();
 				List<User> list = academicProgram.getUser();
