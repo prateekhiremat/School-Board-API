@@ -6,10 +6,12 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.school.sba.Enum.UserRole;
+import com.school.sba.entity.School;
 import com.school.sba.entity.User;
 import com.school.sba.exception.AdminFoundException;
 import com.school.sba.exception.IllegalArgumentException;
@@ -32,19 +34,39 @@ public class UserServiceImp implements UserService {
 	@Autowired
 	PasswordEncoder encoded;
 	@Override
-	public ResponseEntity<ResponseStructure<UserResponce>> saveUser(UserRequest userRequest) {
+	public ResponseEntity<ResponseStructure<UserResponce>> saveAdmin(UserRequest userRequest) {
 		List<User> findAll = userRepository.findAll();
 		for(User user : findAll) {
 			if(user.getUserRole().equals(UserRole.ADMIN))
-				if(userRequest.getUserRole().equals(UserRole.ADMIN))
-					throw new AdminFoundException("Admin already exist");
+				throw new AdminFoundException("Admin already exist");
 		}
-		User user = userRepository.save(mapToUser(userRequest));
-		ResponseStructure<UserResponce> responseStructure = new ResponseStructure<UserResponce>();
-		responseStructure.setStatus(HttpStatus.CREATED.value());
-		responseStructure.setMessage("Saved Successfully!!!");
-		responseStructure.setData(mapToResponse(user));
-		return new ResponseEntity<ResponseStructure<UserResponce>>(responseStructure, HttpStatus.CREATED);
+		if(userRequest.getUserRole().equals(UserRole.ADMIN)) {
+			User user = userRepository.save(mapToUser(userRequest));
+			ResponseStructure<UserResponce> responseStructure = new ResponseStructure<UserResponce>();
+			responseStructure.setStatus(HttpStatus.CREATED.value());
+			responseStructure.setMessage("Saved Successfully!!!");
+			responseStructure.setData(mapToResponse(user));
+			return new ResponseEntity<ResponseStructure<UserResponce>>(responseStructure, HttpStatus.CREATED);
+		}else
+			throw new AdminFoundException("only Admin can be created");
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponce>> saveTeacherStudent(UserRequest userRequest) {
+		String name = SecurityContextHolder.getContext().getAuthentication().getName();
+		School school = userRepository.findByUserName(name).get().getSchool();
+		if(userRequest.getUserRole().equals(UserRole.ADMIN)) {
+			throw new AdminFoundException("only Teacher/Student can be created");
+		}else {
+			User toUser = mapToUser(userRequest);
+			toUser.setSchool(school);
+			User user = userRepository.save(toUser);
+			ResponseStructure<UserResponce> responseStructure = new ResponseStructure<UserResponce>();
+			responseStructure.setStatus(HttpStatus.CREATED.value());
+			responseStructure.setMessage("Saved Successfully!!!");
+			responseStructure.setData(mapToResponse(user));
+			return new ResponseEntity<ResponseStructure<UserResponce>>(responseStructure, HttpStatus.CREATED);
+		}
+		
 	}
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponce>> fetchById(int userId) {
@@ -106,7 +128,7 @@ public class UserServiceImp implements UserService {
 				.userRole(user.getUserRole())
 				.firstName(user.getFirstName())
 				.lastName(user.getLastName())
-//				.subject(user.getSubject().getSubjectName())
+				//				.subject(user.getSubject().getSubjectName())
 				.build();
 	}
 	private User mapToUser(UserRequest userRequest) {

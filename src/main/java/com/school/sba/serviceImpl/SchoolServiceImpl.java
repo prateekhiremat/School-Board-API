@@ -1,16 +1,13 @@
 package com.school.sba.serviceImpl;
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.school.sba.Enum.UserRole;
 import com.school.sba.entity.School;
 import com.school.sba.exception.IllegalArgumentException;
-import com.school.sba.exception.SchoolNotFoundByIdException;
 import com.school.sba.exception.UserNotFoundByIdException;
 import com.school.sba.repository.SchoolRepository;
 import com.school.sba.repository.UserRepository;
@@ -26,9 +23,9 @@ public class SchoolServiceImpl implements SchoolService{
 	@Autowired
 	private UserRepository userRepository;
 	@Override
-	public ResponseEntity<ResponseStructure<SchoolResponce>> adminCreatesSchool(int userId,
-			SchoolRequest schoolRequest) {
-		return userRepository.findById(userId).map(user->{
+	public ResponseEntity<ResponseStructure<SchoolResponce>> adminCreatesSchool(SchoolRequest schoolRequest) {
+		String name = SecurityContextHolder.getContext().getAuthentication().getName();
+		return userRepository.findByUserName(name).map(user->{
 			if(user.isDeleated()==true)
 				throw new UserNotFoundByIdException("UserId has already been deleated!!!");
 			if(user.getUserRole().equals(UserRole.ADMIN)) {
