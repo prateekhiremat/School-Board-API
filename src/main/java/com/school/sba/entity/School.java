@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,6 +37,7 @@ public class School {
 	private String schoolAddress;
 	@OneToOne
 	private Scheduleld scheduleld;
-	@OneToMany(mappedBy = "school")
+	@OneToMany(mappedBy = "school", cascade = CascadeType.REMOVE)
 	private List<AcademicProgram> academicProgram;
+	private boolean isDeleted;
 }

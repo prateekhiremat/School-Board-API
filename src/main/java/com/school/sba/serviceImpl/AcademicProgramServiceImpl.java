@@ -117,4 +117,37 @@ public class AcademicProgramServiceImpl implements AcademicProgramService {
 				.school(school)
 				.build();
 	}
+	@Override
+	public ResponseEntity<ResponseStructure<List<String>>> fetchUsersByRoleInAcademicProgram(int programId,
+			String role) {
+		if(role.equals("ADMIN"))
+			throw new IllegalArgumentException("Admin Cannot be Fetched");
+		List<String> usersByRole = new ArrayList<String>();
+		userRepository.findByUserRoleAndAcademicProgram(UserRole.valueOf(role.toUpperCase()), academicProgramRepository.findById(programId).get())
+		.forEach(user->{
+			usersByRole.add(user.get().getUserName());
+		});;
+		if(usersByRole.isEmpty())
+			throw new IllegalArgumentException("Cannot be Fetched");
+		ResponseStructure<List<String>> responseStructure = new ResponseStructure<List<String>>();
+		responseStructure.setStatus(HttpStatus.OK.value());
+		responseStructure.setMessage("Fetched successfully!!!");
+		responseStructure.setData(usersByRole);
+		return new ResponseEntity<ResponseStructure<List<String>>>(responseStructure, HttpStatus.OK);
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<AcademicProgramResponse>> deleteById(int programId) {
+		return academicProgramRepository.findById(programId).map(academicProgramById -> {
+			if(academicProgramById.isDeleted()==false) {
+				academicProgramById.setDeleted(true);
+			}else {
+				throw new IllegalArgumentException("Doesn't exist");
+			}
+			ResponseStructure<AcademicProgramResponse> responseStructure = new ResponseStructure<AcademicProgramResponse>();
+			responseStructure.setStatus(HttpStatus.OK.value());
+			responseStructure.setMessage("Deleted successfully!!!");
+			responseStructure.setData(mapToResponse(academicProgramRepository.save(academicProgramById)));
+			return new ResponseEntity<ResponseStructure<AcademicProgramResponse>>(responseStructure, HttpStatus.OK);
+		}).orElseThrow(()-> new IllegalArgumentException("Academic Program Does Not Exist"));
+	}
 }

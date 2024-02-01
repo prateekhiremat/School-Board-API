@@ -1,7 +1,6 @@
 package com.school.sba.serviceImpl;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,9 +17,7 @@ import com.school.sba.exception.IllegalArgumentException;
 import com.school.sba.exception.UserNotFoundByIdException;
 import com.school.sba.repository.SubjectRepository;
 import com.school.sba.repository.UserRepository;
-import com.school.sba.requestDTO.SchoolRequest;
 import com.school.sba.requestDTO.UserRequest;
-import com.school.sba.responseDTO.SchoolResponce;
 import com.school.sba.responseDTO.UserResponce;
 import com.school.sba.service.UserService;
 import com.school.sba.util.ResponseStructure;
@@ -53,6 +50,8 @@ public class UserServiceImp implements UserService {
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponce>> saveTeacherStudent(UserRequest userRequest) {
 		String name = SecurityContextHolder.getContext().getAuthentication().getName();
+		if(userRepository.findByUserName(name).get().getSchool()==null)
+			throw new IllegalArgumentException("Create Class First");
 		School school = userRepository.findByUserName(name).get().getSchool();
 		if(userRequest.getUserRole().equals(UserRole.ADMIN)) {
 			throw new AdminFoundException("only Teacher/Student can be created");
@@ -106,7 +105,6 @@ public class UserServiceImp implements UserService {
 				if(user.getSubject()==null) {
 					user.setSubject(subject);
 					userRepository.save(user);
-					subject.getUser().add(user);
 					ResponseStructure<UserResponce> responseStructure = new ResponseStructure<UserResponce>();
 					responseStructure.setStatus(HttpStatus.OK.value());
 					responseStructure.setMessage("User Id deleted successfully!!!");

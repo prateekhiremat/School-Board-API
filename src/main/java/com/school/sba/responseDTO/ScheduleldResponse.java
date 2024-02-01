@@ -1,9 +1,6 @@
 package com.school.sba.responseDTO;
 
-import java.time.Duration;
 import java.time.LocalTime;
-
-import com.school.sba.entity.School;
 
 import lombok.Builder;
 import lombok.Getter;

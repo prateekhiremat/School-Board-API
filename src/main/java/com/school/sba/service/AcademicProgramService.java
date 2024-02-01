@@ -18,4 +18,8 @@ public interface AcademicProgramService {
 	ResponseEntity<ResponseStructure<AcademicProgramResponse>> assignTeachersStudentsToAcademicProgram(int programId,
 			int userId);
 
+	ResponseEntity<ResponseStructure<List<String>>> fetchUsersByRoleInAcademicProgram(int programId, String role);
+
+	ResponseEntity<ResponseStructure<AcademicProgramResponse>> deleteById(int programId);
+
 }

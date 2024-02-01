@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.school.sba.Enum.UserRole;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -39,7 +40,7 @@ public class User {
 	private boolean isDeleated;
 	@ManyToOne
 	private School school;
-	@ManyToMany(mappedBy = "user")
+	@ManyToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
 	private List<AcademicProgram> academicProgram;
 	@ManyToOne
 	private Subject subject;

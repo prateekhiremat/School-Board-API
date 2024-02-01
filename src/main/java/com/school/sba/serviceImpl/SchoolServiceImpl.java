@@ -44,6 +44,21 @@ public class SchoolServiceImpl implements SchoolService{
 				throw new IllegalArgumentException("Only Admin can access to school");
 		}).orElseThrow(()-> new UserNotFoundByIdException("UserId does not exist!!!"));
 	}
+	@Override
+	public ResponseEntity<ResponseStructure<SchoolResponce>> deleteById(int schoolId) {
+		return schoolRepository.findById(schoolId).map(school -> {
+			if(school.isDeleted()==false) {
+				school.setDeleted(true);
+			}else {
+				throw new IllegalArgumentException("Doesn't exist");
+			}
+			ResponseStructure<SchoolResponce> responseStructure = new ResponseStructure<SchoolResponce>();
+			responseStructure.setStatus(HttpStatus.OK.value());
+			responseStructure.setMessage("Deleted successfully!!!");
+			responseStructure.setData(mapToResponse(schoolRepository.save(school)));
+			return new ResponseEntity<ResponseStructure<SchoolResponce>>(responseStructure, HttpStatus.OK);
+		}).orElseThrow(()-> new IllegalArgumentException("School Does Not Exist"));
+	}
 	private School mapToSchool(SchoolRequest schoolRequest) {
 		return School.builder()
 				.schoolName(schoolRequest.getSchoolName())

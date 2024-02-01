@@ -6,8 +6,6 @@ import com.school.sba.requestDTO.UserRequest;
 import com.school.sba.responseDTO.UserResponce;
 import com.school.sba.util.ResponseStructure;
 
-import jakarta.validation.Valid;
-
 public interface UserService {
 
 	ResponseEntity<ResponseStructure<UserResponce>> saveAdmin(UserRequest userRequest);

@@ -1,7 +1,6 @@
 package com.school.sba.responseDTO;
 
 import com.school.sba.Enum.UserRole;
-import com.school.sba.entity.Subject;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
