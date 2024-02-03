@@ -1,6 +1,8 @@
 package com.school.sba.serviceImpl;
 
 import java.time.Duration;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,8 @@ public class ScheduleldServiceImpl implements ScheduleldService {
 		return schoolRepository.findById(schoolId).map(school->{
 			if(school.getScheduleld()==null) {
 				Scheduleld scheduleld = scheduleldRepository.save(mapToScheduleld(school,scheduleldRequest));
+//				validateSchedule(scheduleld);
+//				validateBreakAndLunch(scheduleld);
 				school.setScheduleld(scheduleld);
 				schoolRepository.save(school);
 				ResponseStructure<ScheduleldResponse> responseStructure = new ResponseStructure<ScheduleldResponse>();
@@ -43,11 +47,11 @@ public class ScheduleldServiceImpl implements ScheduleldService {
 	@Override
 	public ResponseEntity<ResponseStructure<ScheduleldResponse>> findScheduleBySchoolId(int schoolId) {
 		return schoolRepository.findById(schoolId).map(school->{
-		ResponseStructure<ScheduleldResponse> responseStructure = new ResponseStructure<ScheduleldResponse>();
-		responseStructure.setStatus(HttpStatus.FOUND.value());
-		responseStructure.setMessage("Scheduleld Fetched successfully!!!!");
-		responseStructure.setData(mapToResponse(school.getScheduleld()));
-		return new ResponseEntity<ResponseStructure<ScheduleldResponse>>(responseStructure, HttpStatus.FOUND);
+			ResponseStructure<ScheduleldResponse> responseStructure = new ResponseStructure<ScheduleldResponse>();
+			responseStructure.setStatus(HttpStatus.FOUND.value());
+			responseStructure.setMessage("Scheduleld Fetched successfully!!!!");
+			responseStructure.setData(mapToResponse(school.getScheduleld()));
+			return new ResponseEntity<ResponseStructure<ScheduleldResponse>>(responseStructure, HttpStatus.FOUND);
 		}).orElseThrow(()->new IllegalArgumentException("School Does Not Exist!!!"));
 	}
 	@Override
@@ -107,5 +111,30 @@ public class ScheduleldServiceImpl implements ScheduleldService {
 		responseStructure.setMessage("Deleted successfully!!!!");
 		responseStructure.setData(mapToResponse(scheduleld));
 		return new ResponseEntity<ResponseStructure<ScheduleldResponse>>(responseStructure, HttpStatus.OK);
+	}
+
+	private void validateSchedule(Scheduleld scheduleld) {
+		LocalTime opensAt = scheduleld.getOpensAt();
+		LocalTime closesAt = scheduleld.getClosesAt();
+
+		long totalMinutes = opensAt.until(closesAt, ChronoUnit.MINUTES);
+		long expectedTotalTime =((scheduleld.getClassHoursPerDay()-2) * scheduleld.getClassHourLengthInMin().toMinutes()) +
+				scheduleld.getBreakLengthInMin().toMinutes() + scheduleld.getLunchLengthInMin().toMinutes();
+
+		if(totalMinutes != expectedTotalTime)
+			throw new IllegalArgumentException("Total hour do not add up correctly");
+	}
+
+	private void validateBreakAndLunch(Scheduleld scheduleld) {
+		LocalTime breakTime = scheduleld.getBreakTime();
+		LocalTime lunchTime = scheduleld.getLunchTime();
+		LocalTime opensAt = scheduleld.getOpensAt();
+		Duration classHourLengthInMin = scheduleld.getClassHourLengthInMin();
+		long totalBreak = opensAt.until(breakTime, ChronoUnit.MINUTES);
+		long totalLunch = opensAt.until(lunchTime, ChronoUnit.MINUTES);
+		totalLunch = totalBreak - scheduleld.getLunchLengthInMin().toMinutes();
+
+		if(!(totalBreak%(classHourLengthInMin.toMinutes())==0 && totalLunch%classHourLengthInMin.toMinutes() ==0))
+			throw new IllegalArgumentException("Total hour do not add up correctly");
 	}
 }
