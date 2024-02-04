@@ -28,7 +28,7 @@ public class ScheduledJobes {
 	private AcademicProgramRepository academicProgramRepository;
 	//1000L*60 = 1minute
 	//1000l*60*60 = 1hour
-//	@Scheduled(fixedDelay = 1000L*60)
+	@Scheduled(fixedDelay = 1000L*60)
 	@Transactional
 	public void delete() {
 		userRepository.findByIsDeleated(true).forEach(user -> {

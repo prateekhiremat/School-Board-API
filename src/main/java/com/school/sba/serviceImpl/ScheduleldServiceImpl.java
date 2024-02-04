@@ -30,8 +30,8 @@ public class ScheduleldServiceImpl implements ScheduleldService {
 		return schoolRepository.findById(schoolId).map(school->{
 			if(school.getScheduleld()==null) {
 				Scheduleld scheduleld = scheduleldRepository.save(mapToScheduleld(school,scheduleldRequest));
-//				validateSchedule(scheduleld);
-//				validateBreakAndLunch(scheduleld);
+				validateSchedule(scheduleld);
+				validateBreakAndLunch(scheduleld);
 				school.setScheduleld(scheduleld);
 				schoolRepository.save(school);
 				ResponseStructure<ScheduleldResponse> responseStructure = new ResponseStructure<ScheduleldResponse>();
@@ -58,6 +58,8 @@ public class ScheduleldServiceImpl implements ScheduleldService {
 	public ResponseEntity<ResponseStructure<ScheduleldResponse>> updateScheduleById(int scheduleldId,
 			ScheduleldRequest scheduleldRequest) {
 		return scheduleldRepository.findById(scheduleldId).map(scheduleld->{
+			validateSchedule(scheduleld);
+			validateBreakAndLunch(scheduleld);
 			scheduleldRepository.save(mapToUpdate(scheduleldId, scheduleldRequest));
 			ResponseStructure<ScheduleldResponse> responseStructure = new ResponseStructure<ScheduleldResponse>();
 			responseStructure.setStatus(HttpStatus.OK.value());
@@ -118,9 +120,9 @@ public class ScheduleldServiceImpl implements ScheduleldService {
 		LocalTime closesAt = scheduleld.getClosesAt();
 
 		long totalMinutes = opensAt.until(closesAt, ChronoUnit.MINUTES);
-		long expectedTotalTime =((scheduleld.getClassHoursPerDay()-2) * scheduleld.getClassHourLengthInMin().toMinutes()) +
+		long expectedTotalTime =((scheduleld.getClassHoursPerDay()) * scheduleld.getClassHourLengthInMin().toMinutes()) +
 				scheduleld.getBreakLengthInMin().toMinutes() + scheduleld.getLunchLengthInMin().toMinutes();
-
+		
 		if(totalMinutes != expectedTotalTime)
 			throw new IllegalArgumentException("Total hour do not add up correctly");
 	}
@@ -133,7 +135,8 @@ public class ScheduleldServiceImpl implements ScheduleldService {
 		long totalBreak = opensAt.until(breakTime, ChronoUnit.MINUTES);
 		long totalLunch = opensAt.until(lunchTime, ChronoUnit.MINUTES);
 		totalLunch = totalBreak - scheduleld.getLunchLengthInMin().toMinutes();
-
+		System.out.println("#####################################################");
+		System.out.println();
 		if(!(totalBreak%(classHourLengthInMin.toMinutes())==0 && totalLunch%classHourLengthInMin.toMinutes() ==0))
 			throw new IllegalArgumentException("Total hour do not add up correctly");
 	}
